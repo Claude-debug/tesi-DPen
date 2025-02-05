@@ -1,0 +1,283 @@
+<MyScreenManager>:
+    LoginScreen:
+    PasswordDimenticataScreen:
+    RegistrazioneScreen:
+    PaginaHome:
+    NuovaIniezioneScreen:
+
+<LoginScreen>:
+    name: "login"
+    canvas.before:
+        Color:
+            rgba: 0.05, 0.05, 0.2, 1  # Blu notte elegante
+        Rectangle:
+            size: self.size
+            pos: self.pos
+
+    BoxLayout:
+        orientation: "vertical"
+        padding: 20
+        spacing: 20
+
+        Label:
+            text: "Accedi alla D-PEN"
+            font_size: 32
+            size_hint_y: None
+            height: 50
+
+        TextInput:
+            id: email_input
+            hint_text: "Email"
+            multiline: False
+            size_hint_y: None
+            height: 45
+
+        TextInput:
+            id: password_input
+            hint_text: "Password"
+            password: True
+            multiline: False
+            size_hint_y: None
+            height: 45
+
+        Label:
+            id: error_label
+            text: ""
+            color: 1, 0, 0, 1
+            size_hint_y: None
+            height: 40
+
+        Button: 
+            text: "Login"
+            size_hint_y: None
+            height: 50
+            pos_hint: {"center_x": 0.5}
+            background_normal: ''
+            background_color: 0, 0, 0, 0  # Rende il bottone trasparente
+            color: 0.1, 0.1, 0.3, 1 
+            on_press: root.effettua_login()
+            canvas.before:
+                Color:
+                    rgba: 1, 0.6, 0.2, 1  # Verde Salvia
+                RoundedRectangle:
+                    size: self.size
+                    pos: self.pos
+                    radius: [20]  # Angoli smussati
+
+
+        BoxLayout:
+            size_hint_y: None
+            height: 40
+            spacing: 10
+
+            Button:
+                text: "Password Dimenticata"
+                size_hint_y: None
+                height: 50
+                pos_hint: {"center_x": 0.5}
+                background_normal: ''
+                background_color: 0, 0, 0, 0  # Rende il bottone trasparente
+                color: 0.1, 0.1, 0.3, 1  # Testo blu scuro
+                on_press: app.root.current = "password_dimenticata"
+                canvas.before:
+                    Color:
+                        rgba: 0.4, 0.8, 1, 1  # Azzurro Sanitario
+                    RoundedRectangle:
+                        size: self.size
+                        pos: self.pos
+                        radius: [20]
+            Button:
+                text: "Registrazione"
+                size_hint_y: None
+                height: 50
+                pos_hint: {"center_x": 0.5}
+                background_normal: ''
+                background_color: 0, 0, 0, 0  # Rende il bottone trasparente
+                color: 0.1, 0.1, 0.3, 1  # Testo blu scuro
+                on_press: app.root.current = "registrazione"
+                canvas.before:
+                    Color:
+                        rgba: 0.4, 0.8, 1, 1  # Azzurro Sanitario
+                    RoundedRectangle:
+                        size: self.size
+                        pos: self.pos
+                        radius: [20]
+<RegistrazioneScreen>:
+    name: "registrazione"
+    canvas.before:
+        Color:
+            rgba: 0.05, 0.05, 0.2, 1  # Blu notte elegante
+        Rectangle:
+            size: self.size
+            pos: self.pos
+
+    BoxLayout:
+        orientation: "vertical"
+        padding: 10
+        spacing: 10
+
+        Label:
+            text: "Registrazione"
+            font_size: 32
+            size_hint_y: None
+            height: 50
+
+        TextInput:
+            id: nome_input
+            hint_text: "Nome"
+            multiline: False
+            size_hint_y: None
+            height: 45
+
+        TextInput:
+            id: cognome_input
+            hint_text: "Cognome"
+            multiline: False
+            size_hint_y: None
+            height: 45
+
+        TextInput:
+            id: email_input
+            hint_text: "Email"
+            multiline: False
+            size_hint_y: None
+            height: 45
+
+        TextInput:
+            id: password_input
+            hint_text: "Password"
+            password: True
+            multiline: False
+            size_hint_y: None
+            height: 45
+
+        Label:
+            text: "Seleziona un medico"
+            size_hint_y: None
+            height: 30
+
+        Spinner:
+            id: medico_spinner
+            text: "Seleziona un medico"
+            size_hint_y: None
+            height: 45
+            background_color: 0.9, 0.9, 1, 1  # Blu chiaro per armonia
+            color: 0, 0, 0, 1  # Testo nero
+            background_normal: ""
+            background_down: ""
+            canvas.before:
+                Color:
+                    rgba: 0.9, 0.9, 1, 1  # Sfondo leggermente più chiaro
+                RoundedRectangle:
+                    size: self.size
+                    pos: self.pos
+                    radius: [10]
+
+        Label:
+            id: error_label
+            text: ""
+            color: 1, 0, 0, 1
+            size_hint_y: None
+            height: 40
+
+        Button:
+            text: "Registrati"
+            size_hint_y: None
+            height: 50
+            pos_hint: {"center_x": 0.5}
+            background_normal: ''
+            background_color: 0, 0, 0, 0
+            color: 0.1, 0.1, 0.3, 1
+            on_press: root.registra_utente()
+            canvas.before:
+                Color:
+                    rgba: 1, 0.6, 0.2, 1  # Arancione morbido
+                RoundedRectangle:
+                    size: self.size
+                    pos: self.pos
+                    radius: [20]
+
+        Button:
+            text: "Torna al Login"
+            size_hint_y: None
+            height: 50
+            pos_hint: {"center_x": 0.5}
+            background_normal: ''
+            background_color: 0, 0, 0, 0
+            color: 0.1, 0.1, 0.3, 1
+            on_press: app.root.current = "login"
+            canvas.before:
+                Color:
+                    rgba: 0.4, 0.8, 1, 1  # Azzurro sanitario
+                RoundedRectangle:
+                    size: self.size
+                    pos: self.pos
+                    radius: [20]
+
+<PasswordDimenticataScreen>:
+    name: "password_dimenticata"
+    canvas.before:
+        Color:
+            rgba: 0.05, 0.05, 0.2, 1  # Blu notte elegante
+        Rectangle:
+            size: self.size
+            pos: self.pos
+
+    BoxLayout:
+        orientation: "vertical"
+        padding: 20
+        spacing: 20
+
+        Label:
+            text: "Recupera Password"
+            font_size: 32
+            size_hint_y: None
+            height: 50
+
+        TextInput:
+            id: email_input
+            hint_text: "Inserisci la tua email"
+            multiline: False
+            size_hint_y: None
+            height: 45
+
+        Label:
+            id: message_label
+            text: ""
+            color: 1, 0, 0, 1
+            size_hint_y: None
+            height: 40
+
+        Button:
+            text: "Invia Email"
+            size_hint_y: None
+            height: 50
+            pos_hint: {"center_x": 0.5}
+            background_normal: ''
+            background_color: 0, 0, 0, 0
+            color: 0.1, 0.1, 0.3, 1
+            on_press: root.reset_password()
+            canvas.before:
+                Color:
+                    rgba: 1, 0.6, 0.2, 1  # Arancione morbido
+                RoundedRectangle:
+                    size: self.size
+                    pos: self.pos
+                    radius: [20]
+
+        Button:
+            text: "Torna al Login"
+            size_hint_y: None
+            height: 50
+            pos_hint: {"center_x": 0.5}
+            background_normal: ''
+            background_color: 0, 0, 0, 0
+            color: 0.1, 0.1, 0.3, 1
+            on_press: app.root.current = "login"
+            canvas.before:
+                Color:
+                    rgba: 0.4, 0.8, 1, 1  # Azzurro sanitario
+                RoundedRectangle:
+                    size: self.size
+                    pos: self.pos
+                    radius: [20]

@@ -1,0 +1,97 @@
+
+Desktop/
+└── progetto/
+    ├── main.py         # File principale per avviare l'app
+    ├── login.kv        # Layout della pagina di login
+    ├── home.kv         # Layout della pagina principale (home)
+    ├── page1.kv        # Layout della pagina 1
+    ├── page2.kv        # Layout della pagina 2
+    ├── assets/         # (Facoltativa) Cartella per immagini, loghi, ecc.
+    ├── database/       # (Facoltativa) Cartella per database
+    ├── utils/          # (Facoltativa) Cartella per funzioni o moduli riutilizzabili
+
+
+
+
+
+
+Schema del Database
+1. Tabella users
+
+Contiene i dati di base di tutti gli utenti (medici e pazienti).
+Campo	Tipo	Descrizione
+id	INTEGER	Identificativo univoco dell'utente (PK).
+nome	TEXT	Nome dell'utente.
+cognome	TEXT	Cognome dell'utente.
+email	TEXT	Email univoca per identificare l'utente.
+password	TEXT	Password per l'accesso (idealmente hashata).
+ruolo	TEXT	Ruolo dell'utente: "medico" o "paziente".
+2. Tabella pazienti
+
+Gestisce l'associazione tra pazienti e medici.
+Campo	Tipo	Descrizione
+id	INTEGER	Identificativo del paziente (FK -> users.id).
+medico_id	INTEGER	ID del medico associato (FK -> users.id).
+3. Tabella iniezioni
+
+Registra tutte le iniezioni effettuate dai pazienti.
+Campo	Tipo	Descrizione
+id	INTEGER	Identificativo univoco dell'iniezione (PK).
+paziente_id	INTEGER	ID del paziente che ha registrato l'iniezione (FK).
+data	TEXT	Data dell'iniezione.
+ora	TEXT	Ora dell'iniezione.
+punto	TEXT	Punto del corpo dove è stata effettuata l'iniezione.
+quantita	REAL	Quantità di insulina iniettata.
+Flusso di Interazione
+
+Ecco come le 3 tabelle lavorano insieme:
+
+    users:
+        Contiene sia medici che pazienti.
+        Determina il ruolo di ciascun utente tramite il campo ruolo.
+
+    pazienti:
+        Collega ogni paziente a un medico specifico tramite il campo medico_id.
+        Permette di sapere quali pazienti appartengono a un determinato medico.
+
+    iniezioni:
+        Registra ogni iniezione effettuata da un paziente.
+        Utilizza il campo paziente_id per collegare ogni iniezione al paziente che l'ha registrata.
+
+SUPER UTENTE IO POSSO VEDERE TUTTO 
+Email: superutente@example.com
+Password: password
+MEDICO 
+Email: mario.rossi@example.com
+Password: password123
+
+
+MEDICO con paziente
+Email: anna.verdi@example.com
+Password: password456
+
+UTENTE
+Email: provanuovaa
+Password: provanuovaa
+
+
+allora non so se ricordi il problema dell'applicazione che dopo il login si chiudeva, l'ho risolto, ma adesso ho necessità
+
+
+allora la pagina di aggiunta iniezione che funzioa è quella(tester2-pagina iniezioni)
+to do list
+1. sistemare estetica pagina iniezioni
+2. modificare file al fine che solo quando si logga il paziente spuntino due bottoni mentre se è un medico o un super utente non vengano visualizzati
+3. capire comme sistemare la tabella nella pagina home per suerutente
+
+
+
+
+    def logout(self):
+        """Esegue il logout e torna alla schermata di login."""
+        print("Logout in esecuzione")
+        self.manager.current_user = {"nome": "", "ruolo": ""}  # Invece di None, usa un dizionario vuoto
+        self.manager.current = "login"
+        if self.popup:
+            self.popup.dismiss()
+        print("Transizione a login completata")

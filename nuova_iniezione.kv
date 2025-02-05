@@ -1,0 +1,59 @@
+<NuovaIniezioneScreen>:
+    name: "nuova_iniezione"
+
+    BoxLayout:
+        orientation: "vertical"
+        spacing: dp(10)
+        padding: dp(20)
+
+        Label:
+            text: "Nuova Iniezione"
+            font_size: dp(24)
+            size_hint_y: None
+            height: dp(40)
+
+        GridLayout:
+            cols: 2
+            spacing: dp(10)
+
+            Label:
+                text: "Data: "
+            Label:
+                id: data_label
+                text: root.data
+
+            Label:
+                text: "Ora: "
+            Label:
+                id: ora_label
+                text: root.ora
+
+            Label:
+                text: "Punto: "
+            Label:
+                id: punto_label
+                text: root.punto
+
+            Label:
+                text: "Quantità: "
+            Label:
+                text: root.quantita
+
+        BoxLayout:
+            spacing: dp(10)
+            size_hint_y: None
+            height: dp(50)
+
+            Button:
+                text: "Salva"
+                on_release: root.salva_record()
+
+            Button:
+                text: "Modifica"
+                on_release: root.modifica_dati()
+
+        Button:
+            text: "Torna alla Home"
+            size_hint_y: None
+            height: dp(50)
+            on_release: app.root.current = "pagina_home"
