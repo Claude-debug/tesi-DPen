@@ -1,16 +1,51 @@
 <NuovaIniezioneScreen>:
     name: "nuova_iniezione"
+    canvas.before:
+        Color:
+            rgba: 0.05, 0.05, 0.2, 1  # Blu notte elegante
+        Rectangle:
+            size: self.size
+            pos: self.pos
 
     BoxLayout:
         orientation: "vertical"
         spacing: dp(10)
         padding: dp(20)
 
-        Label:
-            text: "Nuova Iniezione"
-            font_size: dp(24)
+        # Riga 1: Logo centrato e Bottone Menu smussato
+        BoxLayout:
+            orientation: "horizontal"
             size_hint_y: None
-            height: dp(40)
+            height: dp(50)  # Altezza ridotta
+            padding: [10, 5]  # Margini per distanziarlo
+            spacing: dp(10)
+
+            Label:
+                text: "Nuova iniezione"
+                font_size: dp(24)
+                bold: True
+                color: 1, 1, 1, 1
+                halign: "center"
+                valign: "middle"
+                size_hint_x: 0.8  # Occupa quasi tutto lo spazio
+                text_size: self.size
+
+            Button:
+                id: menu_btn
+                text: "☰"  # Simbolo menu più compatto
+                font_size: dp(18)
+                size_hint_x: None
+                background_normal: ""
+                background_color: 1, 0.65, 0, 1
+                color: 1, 1, 1, 1
+                on_release: root.open_menu(self)
+                canvas.before:
+                    Color:
+                        rgba: 1, 0.65, 0, 1
+                    RoundedRectangle:
+                        pos: self.pos
+                        size: self.size
+                        radius: [30]
 
         GridLayout:
             cols: 2
@@ -39,21 +74,19 @@
             Label:
                 text: root.quantita
 
-        BoxLayout:
-            spacing: dp(10)
-            size_hint_y: None
-            height: dp(50)
-
-            Button:
-                text: "Salva"
-                on_release: root.salva_record()
-
-            Button:
-                text: "Modifica"
-                on_release: root.modifica_dati()
-
         Button:
             text: "Torna alla Home"
             size_hint_y: None
             height: dp(50)
             on_release: app.root.current = "pagina_home"
+            background_normal: ''
+            background_color: 0, 0, 0, 0
+            color: 1, 1, 1, 1
+            canvas.before:
+                Color:
+                    rgba: 1, 0.6, 0.2, 1  # Arancione morbido
+                RoundedRectangle:
+                    pos: self.pos
+                    size: self.size
+                    radius: [20]
+

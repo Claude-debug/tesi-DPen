@@ -6,6 +6,9 @@ from kivy.uix.screenmanager import Screen, ScreenManager
 from kivy.properties import StringProperty, BooleanProperty
 from kivy.properties import ObjectProperty
 from kivy.lang import Builder
+from kivy.uix.textinput import TextInput
+from kivy.uix.spinner import Spinner
+from kivy.clock import Clock
 from kivy.uix.label import Label
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.popup import Popup
@@ -43,6 +46,7 @@ def verifica_email(email):
 
 # Schermata di Login
 class LoginScreen(Screen):
+
     def effettua_login(self):
         email = self.ids.email_input.text.strip()
         password = self.ids.password_input.text.strip()
@@ -243,33 +247,25 @@ class PaginaHome(Screen):
         self.carica_contenuto()
 
       # Verifica che il contenitore dei pulsanti esista
-        btn_container = self.ids.get("btn_container", None)
+        # Controlla se i pulsanti esistono prima di accedervi
+        btn_nuova_iniezione = self.ids.get("btn_nuova_iniezione")
+        btn_cambia_password = self.ids.get("btn_cambia_password")
 
-        # Rimuove i pulsanti in modo sicuro
-        btn_nuova_iniezione = self.ids.get("btn_nuova_iniezione", None)
-        if btn_nuova_iniezione and btn_nuova_iniezione.parent:
-            btn_nuova_iniezione.parent.remove_widget(btn_nuova_iniezione)
+        # Verifica se il bottone esiste prima di accedervi
+        if btn_nuova_iniezione and btn_nuova_iniezione in self.ids.btn_container.children:
+            self.ids.btn_container.remove_widget(btn_nuova_iniezione)
 
-        btn_cambia_password = self.ids.get("btn_cambia_password", None)
-        if btn_cambia_password and btn_cambia_password.parent:
-            btn_cambia_password.parent.remove_widget(btn_cambia_password)
+        if btn_cambia_password and btn_cambia_password in self.ids.btn_container.children:
+            self.ids.btn_container.remove_widget(btn_cambia_password)
 
-        # Gestione dinamica dei pulsanti in base al ruolo
-        if btn_container:
-            if utente["ruolo"] == "paziente":
-                if btn_nuova_iniezione and btn_nuova_iniezione.parent is None:
-                    btn_container.add_widget(btn_nuova_iniezione)
-                self.ids.btn_home.size_hint_x = 0.5
-                btn_nuova_iniezione.size_hint_x = 0.5
+        # Aggiunta dei pulsanti in base al ruolo
+        if utente["ruolo"] == "paziente":
+            if btn_nuova_iniezione and btn_nuova_iniezione not in self.ids.btn_container.children:
+                self.ids.btn_container.add_widget(btn_nuova_iniezione)
 
-            elif utente["ruolo"] == "superutente":
-                if btn_cambia_password and btn_cambia_password.parent is None:
-                    btn_container.add_widget(btn_cambia_password)
-                self.ids.btn_home.size_hint_x = 0.5
-                btn_cambia_password.size_hint_x = 0.5
-
-            else:  # Se è un medico, vede solo Home
-                self.ids.btn_home.size_hint_x = 1
+        elif utente["ruolo"] == "superutente":
+            if btn_cambia_password and btn_cambia_password not in self.ids.btn_container.children:
+                self.ids.btn_container.add_widget(btn_cambia_password)
 
     def aggiorna_lista_iniezioni(self, records, contenitore):
         contenitore.clear_widgets()
@@ -561,38 +557,29 @@ class SchermataDettaglio(Screen):
         self.gestione_pulsanti()
 
     def gestione_pulsanti(self):
-        """Mostra o nasconde il pulsante 'Nuova Iniezione' in base al ruolo dell'utente."""
+        """Mostra o nasconde i pulsanti in base al ruolo dell'utente."""
         utente = self.manager.current_user
 
-       # Verifica che il contenitore dei pulsanti esista
-        btn_container = self.ids.get("btn_container", None)
+        # Controlla se i pulsanti esistono prima di accedervi
+        btn_nuova_iniezione = self.ids.get("btn_nuova_iniezione")
+        btn_cambia_password = self.ids.get("btn_cambia_password")
 
-        # Rimuove i pulsanti in modo sicuro
-        btn_nuova_iniezione = self.ids.get("btn_nuova_iniezione", None)
-        if btn_nuova_iniezione and btn_nuova_iniezione.parent:
-            btn_nuova_iniezione.parent.remove_widget(btn_nuova_iniezione)
+        # Verifica se il bottone esiste prima di accedervi
+        if btn_nuova_iniezione and btn_nuova_iniezione in self.ids.btn_container.children:
+            self.ids.btn_container.remove_widget(btn_nuova_iniezione)
 
-        btn_cambia_password = self.ids.get("btn_cambia_password", None)
-        if btn_cambia_password and btn_cambia_password.parent:
-            btn_cambia_password.parent.remove_widget(btn_cambia_password)
+        if btn_cambia_password and btn_cambia_password in self.ids.btn_container.children:
+            self.ids.btn_container.remove_widget(btn_cambia_password)
 
-        # Gestione dinamica dei pulsanti in base al ruolo
-        if btn_container:
-            if utente["ruolo"] == "paziente":
-                if btn_nuova_iniezione and btn_nuova_iniezione.parent is None:
-                    btn_container.add_widget(btn_nuova_iniezione)
-                self.ids.btn_home.size_hint_x = 0.5
-                btn_nuova_iniezione.size_hint_x = 0.5
+        # Aggiunta dei pulsanti in base al ruolo
+        if utente["ruolo"] == "paziente":
+            if btn_nuova_iniezione and btn_nuova_iniezione not in self.ids.btn_container.children:
+                self.ids.btn_container.add_widget(btn_nuova_iniezione)
 
-            elif utente["ruolo"] == "superutente":
-                if btn_cambia_password and btn_cambia_password.parent is None:
-                    btn_container.add_widget(btn_cambia_password)
-                self.ids.btn_home.size_hint_x = 0.5
-                btn_cambia_password.size_hint_x = 0.5
+        elif utente["ruolo"] == "superutente":
+            if btn_cambia_password and btn_cambia_password not in self.ids.btn_container.children:
+                self.ids.btn_container.add_widget(btn_cambia_password)
 
-            else:  # Se è un medico, vede solo Home
-                self.ids.btn_home.size_hint_x = 1
-       
     def mostra_iniezioni_dettaglio(self, paziente_id):
         self.manager.paziente_selezionato = paziente_id
         self.manager.tipo_dettaglio = "iniezioni"
@@ -646,94 +633,195 @@ class SchermataDettaglio(Screen):
         self.popup.pos = (x - 80, y - 140)
         self.popup.open()
 
-# Schermata delle Iniezioni
 class NuovaIniezioneScreen(Screen):
     data = StringProperty("")
     ora = StringProperty("")
     punto = StringProperty("")
     quantita = StringProperty("1")  # Quantità fissa
-    
-    def on_enter(self):
-        self.mostra_popup_connessione()
-    
-    def mostra_popup_connessione(self):
-        content = BoxLayout(orientation='vertical')
-        content.add_widget(Label(text="Collegare la penna?"))
-        
-        btn_connetti = Button(text="Connetti", on_release=self.connetti_penna)
-        btn_annulla = Button(text="Annulla", on_release=lambda x: setattr(self.manager, "current", "pagina_home"))
 
-        
+    def on_enter(self):
+        """Mostra il popup di connessione alla penna all'ingresso della schermata"""
+        Clock.schedule_once(lambda dt: self.mostra_popup_connessione(), 0.5)
+
+    def mostra_popup_connessione(self):
+        """Popup iniziale per chiedere la connessione alla penna"""
+        content = BoxLayout(orientation='vertical', spacing=10, padding=10)
+        content.add_widget(Label(text="Collegare la penna?", font_size="18sp"))
+
+        btn_connetti = Button(text="Connetti", background_color=(0, 1, 0, 1))
+        btn_annulla = Button(text="Annulla", background_color=(1, 0, 0, 1))
+
+        btn_connetti.bind(on_release=self.connetti_penna)
+        btn_annulla.bind(on_release=lambda x: setattr(self.manager, "current", "pagina_home"))
+
         content.add_widget(btn_connetti)
         content.add_widget(btn_annulla)
-        
+
         self.popup = Popup(title="Connessione Penna", content=content, size_hint=(None, None), size=(300, 200))
         self.popup.open()
-    
+
     def connetti_penna(self, instance):
+        """Simula la connessione della penna e riempie automaticamente i dati"""
         self.popup.dismiss()
         self.data = datetime.datetime.now().strftime("%Y-%m-%d")
         self.ora = datetime.datetime.now().strftime("%H:%M:%S")
         self.punto = random.choice(["Braccio Destro", "Braccio Sinistro", "Coscia Destra", "Coscia Sinistra"])
-        
-        self.mostra_popup_salvataggio()
-    
+
+        # Dopo 5 secondi mostra il popup per salvare i dati
+        Clock.schedule_once(lambda dt: self.mostra_popup_salvataggio(), 5)
+
     def mostra_popup_salvataggio(self):
-        content = BoxLayout(orientation='vertical')
+        """Popup di conferma per salvare il record dopo la connessione"""
+        content = BoxLayout(orientation='vertical', spacing=10, padding=10)
         content.add_widget(Label(text=f"Data: {self.data}\nOra: {self.ora}\nPunto: {self.punto}\nQuantità: {self.quantita}"))
-        
-        btn_salva = Button(text="Salva", on_release=self.salva_record)
-        btn_modifica = Button(text="Modifica", on_release=self.modifica_dati)
-        
+
+        btn_salva = Button(text="Salva", background_color=(0, 0.5, 1, 1))
+        btn_modifica = Button(text="Modifica", background_color=(1, 0.5, 0, 1))
+
+        btn_salva.bind(on_release=self.salva_record)
+        btn_modifica.bind(on_release=self.modifica_dati)
+
         content.add_widget(btn_salva)
         content.add_widget(btn_modifica)
-        
-        self.popup = Popup(title="Salvare il record?", content=content, size_hint=(None, None), size=(300, 250))
+
+        self.popup = Popup(title="Salvare il record?", content=content, size_hint=(None, None), size=(350, 300))
         self.popup.open()
-    
+
     def salva_record(self, instance):
+        """Salva il record nel database e verifica l'avviso di cambio punto"""
         conn = sqlite3.connect("users.db")
         cursor = conn.cursor()
-        
+
         cursor.execute("""
             INSERT INTO iniezioni (paziente_id, data, ora, punto, quantita)
             VALUES (?, ?, ?, ?, ?)
         """, (self.manager.current_user["id"], self.data, self.ora, self.punto, self.quantita))
-        
+
         conn.commit()
         conn.close()
         self.popup.dismiss()
+
+        # Controllo se il paziente ha usato lo stesso punto più di 4 volte consecutive
         self.verifica_avviso_punto()
-        self.mostra_popup_connessione()
-    
+
+        # Riapre il popup di connessione per una nuova iniezione
+        Clock.schedule_once(lambda dt: self.mostra_popup_connessione(), 1)
+
     def modifica_dati(self, instance):
+        """Permette di modificare i dati prima di salvarli"""
         self.popup.dismiss()
-        # Logica per modificare i dati prima di salvarli
-        
+
+        content = BoxLayout(orientation='vertical', spacing=10, padding=10)
+
+        input_data = TextInput(text=self.data)
+        input_ora = TextInput(text=self.ora)
+        input_punto = Spinner(text=self.punto, values=["Braccio Destro", "Braccio Sinistro", "Coscia Destra", "Coscia Sinistra"])
+        input_quantita = TextInput(text=self.quantita)
+
+        btn_salva = Button(text="Salva", background_color=(0, 0.5, 1, 1))
+
+        content.add_widget(Label(text="Data:"))
+        content.add_widget(input_data)
+        content.add_widget(Label(text="Ora:"))
+        content.add_widget(input_ora)
+        content.add_widget(Label(text="Punto:"))
+        content.add_widget(input_punto)
+        content.add_widget(Label(text="Quantità:"))
+        content.add_widget(input_quantita)
+        content.add_widget(btn_salva)
+
+        self.popup = Popup(title="Modifica Dati", content=content, size_hint=(None, None), size=(350, 400))
+        btn_salva.bind(on_release=lambda x: self.salva_modifiche(input_data, input_ora, input_punto, input_quantita))
+        self.popup.open()
+
+    def salva_modifiche(self, input_data, input_ora, input_punto, input_quantita):
+        """Salva le modifiche effettuate ai dati prima di salvare nel database"""
+        self.data = input_data.text
+        self.ora = input_ora.text
+        self.punto = input_punto.text
+        self.quantita = input_quantita.text
+        self.popup.dismiss()
+        self.salva_record(None)
+
     def verifica_avviso_punto(self):
+        """Verifica se l'utente ha usato lo stesso punto più di 4 volte consecutive"""
         conn = sqlite3.connect("users.db")
         cursor = conn.cursor()
-        
+
         cursor.execute("""
             SELECT COUNT(*) FROM iniezioni
             WHERE paziente_id = ? AND punto = ?
             ORDER BY data DESC LIMIT 5
         """, (self.manager.current_user["id"], self.punto))
-        
+
         count = cursor.fetchone()[0]
         conn.close()
-        
+
         if count >= 4:
             self.mostra_avviso_cambio_punto()
-    
+
     def mostra_avviso_cambio_punto(self):
-        content = BoxLayout(orientation='vertical')
-        content.add_widget(Label(text="Attenzione! Cambiare punto di applicazione!"))
-        
-        btn_ok = Button(text="OK", on_release=lambda x: self.popup.dismiss())
+        """Mostra un avviso per suggerire il cambio del punto di iniezione"""
+        content = BoxLayout(orientation='vertical', spacing=10, padding=10)
+        content.add_widget(Label(text="Attenzione! Cambiare punto di applicazione!", font_size="24sp"))
+
+        btn_ok = Button(text="OK", background_color=(1, 0, 0, 1))
         content.add_widget(btn_ok)
-        
-        self.popup = Popup(title="Avviso", content=content, size_hint=(None, None), size=(300, 150))
+
+        self.popup = Popup(title="Avviso", content=content, size_hint=(None, None), size=(500,400))
+        btn_ok.bind(on_release=self.popup.dismiss)
+        self.popup.open()
+
+    def logout(self):
+        """Gestisce il logout e resetta la sessione"""
+        print("Logout in esecuzione...")
+
+        # Imposta un utente vuoto invece di None
+        self.manager.current_user = {"nome": "", "ruolo": ""}
+
+        # Torna alla schermata di login
+        self.manager.current = "login"
+
+        # Pulisce i campi di input della login (se esistono)
+        if "input_email" in self.ids:
+            self.ids.input_email.text = ""
+        if "input_password" in self.ids:
+            self.ids.input_password.text = ""
+
+        print("Transizione a login completata!")
+
+    def open_menu(self, widget):
+        """Apre un menu popup sotto il widget cliccato."""
+        if self.popup:
+            self.popup.dismiss()
+        utente = self.manager.current_user
+        nome = utente["nome"] if utente else "Sconosciuto"
+
+        content = BoxLayout(orientation='vertical', spacing=10, padding=10, size_hint_y=None)
+        content.height = 180 
+
+        btn_info = Button(text=f"Utente: {nome}", size_hint_y=None, height="40dp")
+        btn_logout = Button(text="Logout", size_hint_y=None, height="40dp", on_release=lambda x: self.logout())
+        btn_close = Button(text="Chiudi", size_hint_y=None, height="40dp", on_release=lambda x: self.popup.dismiss())
+
+        content.add_widget(btn_info)
+        content.add_widget(btn_logout)
+        content.add_widget(btn_close)
+
+        self.popup = Popup(
+            title="Profilo",
+            title_align="center",
+            title_size="18sp",
+            title_color=(1, 1, 1, 1),
+            separator_height=0,
+            content=content,
+            size_hint=(None, None),
+            size=(220, 220),
+            auto_dismiss=True
+        )
+
+        x, y = widget.to_window(widget.x, widget.y)
+        self.popup.pos = (x - 80, y - 140)
         self.popup.open()
 
 # Gestore delle schermate

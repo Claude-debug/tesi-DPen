@@ -76,6 +76,7 @@
 
         #parte centrale
         BoxLayout:
+            id: content_container
             orientation: "vertical"
             size_hint_y: 1
             spacing: 10
@@ -107,7 +108,7 @@
                 
                 GridLayout:
                     id: content_container
-                    cols: 1
+                    cols: 4
                     size_hint_y: None
                     height: self.minimum_height
                     row_default_height: "40dp"
@@ -181,6 +182,13 @@
 
 <SchermataDettaglio>:
     name: "dettaglio"
+    canvas.before:
+        Color:
+            rgba: 0.05, 0.05, 0.2, 1  # Blu notte elegante
+        Rectangle:
+            size: self.size
+            pos: self.pos
+            
     BoxLayout:
         orientation: "vertical"
         spacing: 0
