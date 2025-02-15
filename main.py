@@ -243,7 +243,7 @@ class PaginaHome(Screen):
 
     def on_enter(self):
         utente = self.manager.current_user
-        self.ids.user_label.text = f"Benvenuto, {utente['nome']} ({utente['ruolo']})"
+        #self.ids.user_label.text = f"Benvenuto, {utente['nome']} ({utente['ruolo']})"
         self.carica_contenuto()
 
       # Verifica che il contenitore dei pulsanti esista
@@ -350,11 +350,10 @@ class PaginaHome(Screen):
            # self.ids.table_header.text = "Elenco Medici (Nome, Cognome)"
             self.mostra_medici(contenitore)
             # Inseriamo un separatore (facoltativo)
-            contenitore.add_widget(Label(text=""))
+            #contenitore.add_widget(Label(text=""))
            #self.ids.table_header.text = "Elenco Pazienti (Nome, Cognome, Medico Associato)"
             self.mostra_pazienti_superutente(contenitore)
         
-        #contenitore.bind(minimum_height=contenitore.setter('height'))
 
     def mostra_iniezioni_paziente(self, contenitore):
         """Visualizza per il paziente le proprie iniezioni (Data, Ora, Quantità, Punto)."""

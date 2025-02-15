@@ -87,18 +87,6 @@
                     size: self.size
                     pos: self.pos
 
-            # Messaggio di benvenuto
-            Label:
-                id: user_label
-                text: "Benvenuto"
-                size_hint_y: None
-                height: "30dp"
-                font_size: "16sp"
-                halign: "left"
-                valign: "middle"
-                padding_x: 10
-                color: 0, 0, 0, 1  # Testo nero per contrasto
-
             # Area scrollabile per i contenuti dinamici
             ScrollView:
                 do_scroll_x: False
@@ -107,8 +95,9 @@
                 padding: [0, 20, 0, 20]
                 
                 GridLayout:
-                    id: content_container
-                    cols: 4
+                    id: patients_container
+                    #id: content_container
+                    cols: 2
                     size_hint_y: None
                     height: self.minimum_height
                     row_default_height: "40dp"
@@ -131,7 +120,7 @@
 
             Button:
                 id: btn_home
-                text: "🏠"
+                text: "HOME"
                 font_size: "22sp"
                 background_normal: ''
                 background_color: 0, 0, 0, 0  # Bottone trasparente
@@ -165,7 +154,7 @@
 
             Button:
                 id: btn_cambia_password
-                text: "🔑 Cambia Password"
+                text: "Cambia Password"
                 font_size: "22sp"
                 background_normal: ''
                 background_color: 0, 0, 0, 0
@@ -308,7 +297,7 @@
 
             Button:
                 id: btn_home
-                text: "🏠"
+                text: "HOME"
                 font_size: "22sp"
                 background_normal: ''
                 background_color: 0, 0, 0, 0  # Bottone trasparente
@@ -342,7 +331,7 @@
 
             Button:
                 id: btn_cambia_password
-                text: "🔑 Cambia Password"
+                text: "Cambia Password"
                 font_size: "22sp"
                 background_normal: ''
                 background_color: 0, 0, 0, 0
