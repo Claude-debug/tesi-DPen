@@ -247,26 +247,32 @@ class PaginaHome(Screen):
         self.carica_contenuto()
 
       # Verifica che il contenitore dei pulsanti esista
-        # Controlla se i pulsanti esistono prima di accedervi
         btn_nuova_iniezione = self.ids.get("btn_nuova_iniezione")
         btn_cambia_password = self.ids.get("btn_cambia_password")
 
-        # Verifica se il bottone esiste prima di accedervi
-        if btn_nuova_iniezione and btn_nuova_iniezione in self.ids.btn_container.children:
-            self.ids.btn_container.remove_widget(btn_nuova_iniezione)
+        # Rimozione sicura dal container dei pulsanti:
+        if btn_nuova_iniezione is not None:
+            try:
+                if btn_nuova_iniezione in list(self.ids.btn_container.children):
+                    self.ids.btn_container.remove_widget(btn_nuova_iniezione)
+            except ReferenceError:
+                pass
 
-        if btn_cambia_password and btn_cambia_password in self.ids.btn_container.children:
-            self.ids.btn_container.remove_widget(btn_cambia_password)
+        if btn_cambia_password is not None:
+            try:
+                if btn_cambia_password in list(self.ids.btn_container.children):
+                    self.ids.btn_container.remove_widget(btn_cambia_password)
+            except ReferenceError:
+                pass
 
-        # Aggiunta dei pulsanti in base al ruolo
+        # Aggiungi i pulsanti in base al ruolo:
         if utente["ruolo"] == "paziente":
-            if btn_nuova_iniezione and btn_nuova_iniezione not in self.ids.btn_container.children:
+            if btn_nuova_iniezione is not None and btn_nuova_iniezione not in self.ids.btn_container.children:
                 self.ids.btn_container.add_widget(btn_nuova_iniezione)
-
         elif utente["ruolo"] == "superutente":
-            if btn_cambia_password and btn_cambia_password not in self.ids.btn_container.children:
+            if btn_cambia_password is not None and btn_cambia_password not in self.ids.btn_container.children:
                 self.ids.btn_container.add_widget(btn_cambia_password)
-
+                
     def aggiorna_lista_iniezioni(self, records, contenitore):
         contenitore.clear_widgets()
         from kivy.uix.label import Label
@@ -560,25 +566,33 @@ class SchermataDettaglio(Screen):
         utente = self.manager.current_user
 
         # Controlla se i pulsanti esistono prima di accedervi
+      # Verifica che il contenitore dei pulsanti esista
         btn_nuova_iniezione = self.ids.get("btn_nuova_iniezione")
         btn_cambia_password = self.ids.get("btn_cambia_password")
 
-        # Verifica se il bottone esiste prima di accedervi
-        if btn_nuova_iniezione and btn_nuova_iniezione in self.ids.btn_container.children:
-            self.ids.btn_container.remove_widget(btn_nuova_iniezione)
+        # Rimozione sicura dal container dei pulsanti:
+        if btn_nuova_iniezione is not None:
+            try:
+                if btn_nuova_iniezione in list(self.ids.btn_container.children):
+                    self.ids.btn_container.remove_widget(btn_nuova_iniezione)
+            except ReferenceError:
+                pass
 
-        if btn_cambia_password and btn_cambia_password in self.ids.btn_container.children:
-            self.ids.btn_container.remove_widget(btn_cambia_password)
+        if btn_cambia_password is not None:
+            try:
+                if btn_cambia_password in list(self.ids.btn_container.children):
+                    self.ids.btn_container.remove_widget(btn_cambia_password)
+            except ReferenceError:
+                pass
 
-        # Aggiunta dei pulsanti in base al ruolo
+        # Aggiungi i pulsanti in base al ruolo:
         if utente["ruolo"] == "paziente":
-            if btn_nuova_iniezione and btn_nuova_iniezione not in self.ids.btn_container.children:
+            if btn_nuova_iniezione is not None and btn_nuova_iniezione not in self.ids.btn_container.children:
                 self.ids.btn_container.add_widget(btn_nuova_iniezione)
-
         elif utente["ruolo"] == "superutente":
-            if btn_cambia_password and btn_cambia_password not in self.ids.btn_container.children:
+            if btn_cambia_password is not None and btn_cambia_password not in self.ids.btn_container.children:
                 self.ids.btn_container.add_widget(btn_cambia_password)
-
+            
     def mostra_iniezioni_dettaglio(self, paziente_id):
         self.manager.paziente_selezionato = paziente_id
         self.manager.tipo_dettaglio = "iniezioni"
