@@ -1,0 +1,61 @@
+import sqlite3
+
+def mostra_utenti():
+    conn = sqlite3.connect("users.db")
+    cursor = conn.cursor()
+    
+    cursor.execute("SELECT id, nome, cognome FROM users")
+    utenti = cursor.fetchall()
+    
+    if not utenti:
+        print("Nessun utente trovato nel database.")
+        conn.close()
+        return None
+    
+    print("Lista utenti:")
+    for user in utenti:
+        print(f"ID: {user[0]} - Nome: {user[1]} - Cognome: {user[2]}")
+    
+    conn.close()
+    return utenti
+
+def modifica_utente():
+    utenti = mostra_utenti()
+    if not utenti:
+        return
+    
+    try:
+        user_id = int(input("Inserisci l'ID dell'utente da modificare: "))
+        conn = sqlite3.connect("users.db")
+        cursor = conn.cursor()
+        
+        cursor.execute("SELECT nome, cognome FROM users WHERE id = ?", (user_id,))
+        utente = cursor.fetchone()
+        
+        if not utente:
+            print("ID non valido. Nessun utente trovato.")
+            conn.close()
+            return
+        
+        print(f"Utente selezionato: Nome: {utente[0]} - Cognome: {utente[1]}")
+        
+        campo = input("Quale campo vuoi modificare? (nome/cognome): ").strip().lower()
+        if campo not in ["nome", "cognome"]:
+            print("Scelta non valida.")
+            conn.close()
+            return
+        
+        nuovo_valore = input(f"Inserisci il nuovo {campo}: ").strip()
+        
+        cursor.execute(f"UPDATE users SET {campo} = ? WHERE id = ?", (nuovo_valore, user_id))
+        conn.commit()
+        print(f"{campo.capitalize()} aggiornato con successo!")
+        
+        conn.close()
+    except ValueError:
+        print("Errore: devi inserire un ID numerico valido.")
+    except sqlite3.Error as e:
+        print(f"Errore durante l'aggiornamento: {e}")
+
+if __name__ == "__main__":
+    modifica_utente()

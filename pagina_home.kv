@@ -3,117 +3,145 @@
 
     BoxLayout:
         orientation: "vertical"
+        padding: 10
+        spacing: 10
+        canvas.before:
+            Color:
+                rgba: 0.05, 0.05, 0.2, 1  # Blu notte elegante
+            Rectangle:
+                size: self.size
+                pos: self.pos
 
-        # HEADER UNICO
+        # HEADER (TITOLO + MENU)
         BoxLayout:
-            orientation: "vertical"
             size_hint_y: None
-            height: "100dp"
+            height: "60dp"
+            canvas.before:
+                Color:
+                    rgba: 0.05, 0.05, 0.2, 1
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+
+            Label:
+                text: "Benvenuto in di-PEN"
+                font_size: "22sp"
+                color: 1, 1, 1, 1
+                bold: True
+                halign: "center"
+                valign: "middle"
+                text_size: self.size
+            
+            Button:
+                id: menu_btn
+                text: "Menu"
+                size_hint_x: 0.2
+                background_normal: ""
+                background_color: 0, 0, 0, 0
+                color: 1, 1, 1, 1
+                on_release: root.open_menu(self)
+                canvas.before:
+                    Color:
+                        rgba: 1, 0.65, 0, 1
+                    RoundedRectangle:
+                        pos: self.pos
+                        size: self.size
+                        radius: [20]
+
+        # BARRA DI RICERCA
+        BoxLayout:
+            size_hint_y: None
+            height: "45dp"
+            spacing: "5dp"
+
+            TextInput:
+                id: search_input
+                size_hint_x: 0.8
+                hint_text: "Cerca paziente o iniezione..."
+                multiline: False
+                background_color: 1, 1, 1, 1
+                foreground_color: 0, 0, 0, 1
+                on_text: root.on_search(self.text)
+                padding: [10, 10, 10, 10]
+
+            Button:
+                text: "Cancella"
+                size_hint_x: 0.2
+                background_normal: ''
+                background_color: 0, 0, 0, 0
+                color:  0.1, 0.1, 0.3, 1
+                on_release: root.clear_search()
+                canvas.before:
+                    Color:
+                        rgba: 0.4, 0.8, 1, 1  # Azzurro sanitario
+                    RoundedRectangle:
+                        size: self.size
+                        pos: self.pos
+                        radius: [20]
+
+        # CONTENITORE DINAMICO PER LE TABELLE
+        BoxLayout:
+            id: content_container
+            orientation: "vertical"
             padding: "10dp"
             spacing: "10dp"
             canvas.before:
                 Color:
-                    rgba: 0.05, 0.05, 0.2, 1  # Blu notte elegante
+                    rgba: 0.2, 0.2, 0.4, 1
                 Rectangle:
                     pos: self.pos
                     size: self.size
 
-            # Riga 1: Logo centrato e Bottone Menu smussato
-            BoxLayout:
-                orientation: "horizontal"
-                size_hint_y: 0.5
-                spacing: "10dp"
-                # Il Label viene centrato usando halign e text_size
-                Label:
-                    text: "D-PEN"
-                    font_size: "20sp"
-                    color: 1, 1, 1, 1
-                    bold: True
-                    halign: "center"
-                    valign: "middle"
-                    text_size: self.size
-                    size_hint_x: 0.7
-                Button:
-                    id: menu_btn
-                    text: "Menu"
-                    size_hint_x: 0.3
-                    background_normal: ""
-                    background_color: 1, 0.65, 0, 1
-                    color: 1, 1, 1, 1
-                    on_release: root.open_menu(self)
-                    canvas.before:
-                        Color:
-                            rgba: 1, 0.65, 0, 1
-                        RoundedRectangle:
-                            pos: self.pos
-                            size: self.size
-                            radius: [20]
-
-            # Riga 2: Barra di ricerca
-            BoxLayout:
-                orientation: "horizontal"
-                size_hint_y: 0.5
-                padding: [5, 0, 5, 0]
-                spacing: "5dp"
-                canvas.before:
-                    Color:
-                        rgba: 0.9, 0.9, 0.9, 1
-                    RoundedRectangle:
-                        pos: self.pos
-                        size: self.size
-                        radius: [10]
-                Label:
-                    text: "Cerca:"
-                    size_hint_x: 0.2
-                    color: 0, 0, 0, 1
-                TextInput:
-                    id: search_input
-                    size_hint_x: 0.8
-                    multiline: False
-                    background_color: 1, 1, 1, 1
-                    foreground_color: 0, 0, 0, 1
-                    on_text: root.on_search(self.text)
-
-        #parte centrale
-        BoxLayout:
-            id: content_container
-            orientation: "vertical"
-            size_hint_y: 1
-            spacing: 10
-            canvas.before:
-                Color:
-                    rgba: 1, 1, 1, 1  # Sfondo bianco per migliorare la leggibilità
-                Rectangle:
-                    size: self.size
-                    pos: self.pos
-
-            # Area scrollabile per i contenuti dinamici
+            # SCROLLVIEW PER LE TABELLE
             ScrollView:
-                do_scroll_x: False
-                do_scroll_y: True
-                size_hint_y: 1   # Occupa tutto lo spazio rimanente
-                padding: [0, 20, 0, 20]
-                
                 GridLayout:
                     id: patients_container
-                    #id: content_container
-                    cols: 2
+                    cols: 4
                     size_hint_y: None
                     height: self.minimum_height
                     row_default_height: "40dp"
                     row_force_default: True
-                    spacing: 5
+                    spacing: "5dp"
+                    padding: "10dp"
+                    canvas.before:
+                        Color:
+                            rgba: 0.2, 0.2, 0.4, 1
+                        Rectangle:
+                            pos: self.pos
+                            size: self.size
 
-        # BARRA INFERIORE con pulsanti uniformi
+                    # Intestazione della tabella
+                    Label:
+                        text: "Data"
+                        font_size: "18sp"
+                        bold: True
+                        color: 1, 1, 1, 1
+                    Label:
+                        text: "Ora"
+                        font_size: "18sp"
+                        bold: True
+                        color: 1, 1, 1, 1
+                    Label:
+                        text: "Quantità"
+                        font_size: "18sp"
+                        bold: True
+                        color: 1, 1, 1, 1
+                    Label:
+                        text: "Punto"
+                        font_size: "18sp"
+                        bold: True
+                        color: 1, 1, 1, 1
+
+        # BARRA INFERIORE CON PULSANTI
         BoxLayout:
             id: btn_container
             size_hint_y: None
-            height: "50dp"
+            height: "60dp"
             padding: "10dp"
             spacing: "10dp"
             canvas.before:
                 Color:
-                    rgba: 0.05, 0.05, 0.2, 1  # Blu notte elegante
+                    rgba: 0.05, 0.05, 0.2, 1
                 Rectangle:
                     pos: self.pos
                     size: self.size
@@ -121,205 +149,11 @@
             Button:
                 id: btn_home
                 text: "HOME"
-                font_size: "22sp"
-                background_normal: ''
-                background_color: 0, 0, 0, 0  # Bottone trasparente
-                color: 1, 1, 1, 1
-                on_release: root.manager.current = "pagina_home"
-                size_hint_x: 1
-                canvas.before:
-                    Color:
-                        rgba: 1, 0.6, 0.2, 1  # Arancione morbido
-                    RoundedRectangle:
-                        pos: self.pos
-                        size: self.size
-                        radius: [20]
-
-            Button:
-                id: btn_nuova_iniezione
-                text: "+"
-                font_size: "22sp"
-                background_normal: ''
-                background_color: 0, 0, 0, 0  # Bottone trasparente
-                color: 1, 1, 1, 1
-                on_release: root.manager.current = "nuova_iniezione"
-                size_hint_x: 1
-                canvas.before:
-                    Color:
-                        rgba: 1, 0.6, 0.2, 1
-                    RoundedRectangle:
-                        pos: self.pos
-                        size: self.size
-                        radius: [20]
-
-            Button:
-                id: btn_cambia_password
-                text: "Cambia Password"
                 font_size: "22sp"
                 background_normal: ''
                 background_color: 0, 0, 0, 0
                 color: 1, 1, 1, 1
-                on_release: root.manager.current = "cambia_password"
-                size_hint_x: 1
-                canvas.before:
-                    Color:
-                        rgba: 0.2, 0.6, 0.8, 1
-                    RoundedRectangle:
-                        pos: self.pos
-                        size: self.size
-                        radius: [20]
-
-<SchermataDettaglio>:
-    name: "dettaglio"
-    canvas.before:
-        Color:
-            rgba: 0.05, 0.05, 0.2, 1  # Blu notte elegante
-        Rectangle:
-            size: self.size
-            pos: self.pos
-            
-    BoxLayout:
-        orientation: "vertical"
-        spacing: 0
-        padding: 0
-
-        # HEADER UNICO
-        BoxLayout:
-            orientation: "vertical"
-            size_hint_y: None
-            height: "100dp"
-            padding: "10dp"
-            spacing: "10dp"
-            canvas.before:
-                Color:
-                    rgba: 0.05, 0.05, 0.2, 1  # Blu notte elegante
-                Rectangle:
-                    pos: self.pos
-                    size: self.size
-
-            # Riga 1: Logo centrato e Bottone Menu smussato
-            BoxLayout:
-                orientation: "horizontal"
-                size_hint_y: 0.5
-                spacing: "10dp"
-                # Il Label viene centrato usando halign e text_size
-                Label:
-                    text: "D-PEN"
-                    font_size: "20sp"
-                    color: 1, 1, 1, 1
-                    bold: True
-                    halign: "center"
-                    valign: "middle"
-                    text_size: self.size
-                    size_hint_x: 0.7
-                Button:
-                    id: menu_btn
-                    text: "Menu"
-                    size_hint_x: 0.3
-                    background_normal: ""
-                    background_color: 1, 0.65, 0, 1
-                    color: 1, 1, 1, 1
-                    on_release: root.open_menu(self)
-                    canvas.before:
-                        Color:
-                            rgba: 1, 0.65, 0, 1
-                        RoundedRectangle:
-                            pos: self.pos
-                            size: self.size
-                            radius: [20]
-
-            # Riga 2: Barra di ricerca
-            BoxLayout:
-                orientation: "horizontal"
-                size_hint_y: 0.5
-                padding: [5, 0, 5, 0]
-                spacing: "5dp"
-                canvas.before:
-                    Color:
-                        rgba: 0.9, 0.9, 0.9, 1
-                    RoundedRectangle:
-                        pos: self.pos
-                        size: self.size
-                        radius: [10]
-                Label:
-                    text: "Cerca:"
-                    size_hint_x: 0.2
-                    color: 0, 0, 0, 1
-                TextInput:
-                    id: search_input
-                    size_hint_x: 0.8
-                    multiline: False
-                    background_color: 1, 1, 1, 1
-                    foreground_color: 0, 0, 0, 1
-                    on_text: root.on_search(self.text)
-
-        # Etichetta che indica il dettaglio (centrata)
-        Label:
-            id: user_label
-            text: "Dettaglio"
-            size_hint_y: None
-            height: "30dp"
-            font_size: "16sp"
-            halign: "center"
-            valign: "middle"
-            text_size: self.size
-            padding_x: 10
-
-        # AREA PER IL DETTAGLIO: se non ci sono record, il contenuto viene centrato
-        AnchorLayout:
-            anchor_x: "center"
-            anchor_y: "center"
-            ScrollView:
-                size_hint_y: None
-                height: self.parent.height  # Forza l'altezza pari a quella dell'AnchorLayout
-                GridLayout:
-                    id: detail_container
-                    cols: 1
-                    size_hint_y: None
-                    height: self.minimum_height
-                    row_default_height: "40dp"
-                    row_force_default: True
-                    spacing: 5
-
-        # BARRA INFERIORE con pulsanti uniformi
-        BoxLayout:
-            id: btn_container
-            size_hint_y: None
-            height: "50dp"
-            padding: "10dp"
-            spacing: "10dp"
-            canvas.before:
-                Color:
-                    rgba: 0.05, 0.05, 0.2, 1  # Blu notte elegante
-                Rectangle:
-                    pos: self.pos
-                    size: self.size
-
-            Button:
-                id: btn_home
-                text: "HOME"
-                font_size: "22sp"
-                background_normal: ''
-                background_color: 0, 0, 0, 0  # Bottone trasparente
-                color: 1, 1, 1, 1
                 on_release: root.manager.current = "pagina_home"
-                size_hint_x: 1
-                canvas.before:
-                    Color:
-                        rgba: 1, 0.6, 0.2, 1  # Arancione morbido
-                    RoundedRectangle:
-                        pos: self.pos
-                        size: self.size
-                        radius: [20]
-
-            Button:
-                id: btn_nuova_iniezione
-                text: "+"
-                font_size: "22sp"
-                background_normal: ''
-                background_color: 0, 0, 0, 0  # Bottone trasparente
-                color: 1, 1, 1, 1
-                on_release: root.manager.current = "nuova_iniezione"
                 size_hint_x: 1
                 canvas.before:
                     Color:
@@ -330,9 +164,26 @@
                         radius: [20]
 
             Button:
+                id: btn_nuova_iniezione
+                text: "Nuova Iniezione"
+                font_size: "18sp"
+                background_normal: ''
+                background_color: 0, 0, 0, 0
+                color: 1, 1, 1, 1
+                on_release: root.manager.current = "nuova_iniezione"
+                size_hint_x: 1
+                canvas.before:
+                    Color:
+                        rgba: 0.3, 0.7, 1, 1
+                    RoundedRectangle:
+                        pos: self.pos
+                        size: self.size
+                        radius: [20]
+
+            Button:
                 id: btn_cambia_password
                 text: "Cambia Password"
-                font_size: "22sp"
+                font_size: "18sp"
                 background_normal: ''
                 background_color: 0, 0, 0, 0
                 color: 1, 1, 1, 1

@@ -15,13 +15,14 @@ from kivy.uix.popup import Popup
 from kivy.uix.label import Label
 from kivy.uix.button import Button
 from kivy.uix.boxlayout import BoxLayout
+from datetime import datetime
 
 # Carica i file KV
 Builder.load_file("login.kv")
 Builder.load_file("pagina_home.kv")
 Builder.load_file("nuova_iniezione.kv")
 Builder.load_file("cambia_password.kv")
-
+Builder.load_file("schermata_iniezioni_paziente.kv")
 # Funzione per verificare le credenziali
 def verifica_credenziali(email, password):
     conn = sqlite3.connect("users.db")
@@ -240,6 +241,7 @@ class CambiaPasswordScreen(Screen):
 class PaginaHome(Screen):
     search_text = StringProperty("")
     popup = ObjectProperty(None)
+    
 
     def on_enter(self):
         utente = self.manager.current_user
@@ -272,20 +274,44 @@ class PaginaHome(Screen):
         elif utente["ruolo"] == "superutente":
             if btn_cambia_password is not None and btn_cambia_password not in self.ids.btn_container.children:
                 self.ids.btn_container.add_widget(btn_cambia_password)
-                
-    def aggiorna_lista_iniezioni(self, records, contenitore):
+    
+    def carica_contenuto(self):
+        """Carica il contenuto dinamico in base al ruolo dell'utente."""
+        ruolo = self.manager.current_user["ruolo"]
+        contenitore = self.ids.content_container
         contenitore.clear_widgets()
-        from kivy.uix.label import Label
+
+        if ruolo == "paziente":
+            self.mostra_iniezioni_paziente(contenitore)
+        elif ruolo == "medico":
+            self.mostra_pazienti_medico(contenitore)
+        elif ruolo == "superutente":
+            self.mostra_medici(contenitore)
+            self.mostra_pazienti_superutente(contenitore)
+                 
+    def aggiorna_lista_iniezioni(self, records):
+        """Mostra l'elenco delle iniezioni."""
+        container = self.ids.patients_container
+        container.clear_widgets()
+
         if records:
             for data, ora, quantita, punto in records:
-                contenitore.add_widget(Label(text=f"{data} {ora} - {quantita} U/ml - {punto}"))
+                container.add_widget(Label(text=str(data), size_hint_y=None, height="40dp"))
+                container.add_widget(Label(text=str(ora), size_hint_y=None, height="40dp"))
+                container.add_widget(Label(text=str(quantita), size_hint_y=None, height="40dp"))
+                container.add_widget(Label(text=str(punto), size_hint_y=None, height="40dp"))
         else:
-            contenitore.add_widget(Label(text="Nessun risultato trovato."))
+            container.add_widget(Label(text="Nessuna iniezione trovata.", size_hint_y=None, height="40dp")) 
 
     def on_search(self, text):
         # Logica per cercare tra i dati
         self.search_text = text.lower()  # Per filtrare o evidenziare i risultati
         print(f"Searching for: {self.search_text}")
+   
+    def clear_search(self):
+        """Cancella il testo della ricerca e ripristina la lista completa."""
+        self.ids.search_input.text = ""
+        self.carica_iniezioni()
 
     def logout(self):
         """Gestisce il logout e resetta la sessione"""
@@ -339,51 +365,34 @@ class PaginaHome(Screen):
         self.popup.pos = (x - 80, y - 140)
         self.popup.open()
 
-    def carica_contenuto(self):
-        """Carica il contenuto dinamico in base al ruolo dell'utente."""
-        ruolo = self.manager.current_user["ruolo"]
-        contenitore = self.ids.content_container
-        contenitore.clear_widgets()
-
-        if ruolo == "paziente":
-            #self.ids.table_header.text = "Le tue Iniezioni (Data, Ora, Quantità, Punto)"
-            self.mostra_iniezioni_paziente(contenitore)
-        elif ruolo == "medico":
-            #self.ids.table_header.text = "I tuoi Pazienti (Nome, Cognome, Totale Iniezioni)"
-            self.mostra_pazienti_medico(contenitore)
-        elif ruolo == "superutente":
-            # Visualizza prima la tabella dei medici e poi quella dei pazienti
-           # self.ids.table_header.text = "Elenco Medici (Nome, Cognome)"
-            self.mostra_medici(contenitore)
-            # Inseriamo un separatore (facoltativo)
-            #contenitore.add_widget(Label(text=""))
-           #self.ids.table_header.text = "Elenco Pazienti (Nome, Cognome, Medico Associato)"
-            self.mostra_pazienti_superutente(contenitore)
-        
 
     def mostra_iniezioni_paziente(self, contenitore):
-        """Visualizza per il paziente le proprie iniezioni (Data, Ora, Quantità, Punto)."""
+        """Visualizza per il paziente le proprie iniezioni con un design migliorato."""
         user_id = self.manager.current_user["id"]
         conn = sqlite3.connect("users.db")
         cursor = conn.cursor()
-        cursor.execute(
-            "SELECT data, ora, quantita, punto FROM iniezioni WHERE paziente_id = ? ORDER BY data, ora",
-            (user_id,)
-        )
+        cursor.execute("SELECT data, ora, quantita, punto FROM iniezioni WHERE paziente_id = ? ORDER BY data DESC", (user_id,))
         records = cursor.fetchall()
         conn.close()
 
-        table = GridLayout(cols=4, size_hint_y=None)
+        # Crea un GridLayout per visualizzare i dati
+        table = GridLayout(cols=4, padding=10, spacing=10)
         table.bind(minimum_height=table.setter('height'))
 
-        if records:
-            for data, ora, quantita, punto in records:
-                table.add_widget(Label(text=str(data)))
-                table.add_widget(Label(text=str(ora)))
-                table.add_widget(Label(text=str(quantita)))
-                table.add_widget(Label(text=str(punto)))
-        else:
-            table.add_widget(Label(text="Nessuna iniezione registrata."))
+        # Aggiungi l'intestazione con testo evidenziato
+        headers = ["Data", "Ora", "Quantità", "Punto"]
+        for header in headers:
+            label = Label(text=header, font_size="18sp", bold=True, color=(1, 1, 1, 1), size_hint_y=None, height=40)
+            table.add_widget(label)
+
+        # Aggiungi i dati delle iniezioni
+        for data, ora, quantita, punto in records:
+            table.add_widget(Label(text=str(data), font_size="16sp", size_hint_y=None, height=40))
+            table.add_widget(Label(text=str(ora), font_size="16sp", size_hint_y=None, height=40))
+            table.add_widget(Label(text=f"{quantita} U/ml", font_size="16sp", size_hint_y=None, height=40))
+            table.add_widget(Label(text=str(punto), font_size="16sp", size_hint_y=None, height=40))
+
+        contenitore.clear_widgets()
         contenitore.add_widget(table)
 
     def mostra_pazienti_medico(self, contenitore):
@@ -409,7 +418,7 @@ class PaginaHome(Screen):
         records = cursor.fetchall()
         conn.close()
 
-        table = GridLayout(cols=1, size_hint_y=None)
+        table = GridLayout(cols=2, size_hint_y=None, padding=10, spacing=10)
         table.bind(minimum_height=table.setter('height'))
 
         if records:
@@ -468,7 +477,7 @@ class PaginaHome(Screen):
         records = cursor.fetchall()
         conn.close()
 
-        table = GridLayout(cols=1, size_hint_y=None)
+        table = GridLayout(cols=2, size_hint_y=None)
         table.bind(minimum_height=table.setter('height'))
 
         if records:
@@ -488,134 +497,175 @@ class PaginaHome(Screen):
         """Imposta il paziente selezionato e passa alla schermata di dettaglio per le iniezioni."""
         self.manager.paziente_selezionato = paziente_id
         self.manager.tipo_dettaglio = "iniezioni"
-        self.manager.current = "dettaglio"
+        self.manager.current = "schermata_iniezioni_paziente"
 
     def mostra_pazienti_medico_dettaglio(self, medico_id):
         """Imposta il medico selezionato e passa alla schermata di dettaglio per visualizzare i pazienti associati."""
         self.manager.medico_selezionato = medico_id
         self.manager.tipo_dettaglio = "pazienti_medico"
-        self.manager.current = "dettaglio"
+        self.manager.current = "schermata_iniezioni_paziente"
 
-# Schermata di Dettaglio
-class SchermataDettaglio(Screen):
-
-    search_text = StringProperty("")
-    popup = ObjectProperty(None)
+class SchermataIniezioniPaziente(Screen):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.popup = None  # Inizializza la variabile popup
 
     def on_enter(self):
-        contenitore = self.ids.detail_container
-        contenitore.clear_widgets()
+        """Carica i dati in base al tipo di dettaglio richiesto."""
+        tipo_dettaglio = self.manager.tipo_dettaglio
 
-        if self.manager.tipo_dettaglio == "iniezioni":
-            paziente_id = self.manager.paziente_selezionato
-            conn = sqlite3.connect("users.db")
-            cursor = conn.cursor()
-            cursor.execute(
-                "SELECT data, ora, quantita, punto FROM iniezioni WHERE paziente_id = ? ORDER BY data, ora",
-                (paziente_id,)
-            )
-            records = cursor.fetchall()
-            conn.close()
-            table = GridLayout(cols=4, size_hint_y=None)
-            table.bind(minimum_height=table.setter('height'))
-            if records:
-                for data, ora, quantita, punto in records:
-                    table.add_widget(Label(text=str(data)))
-                    table.add_widget(Label(text=str(ora)))
-                    table.add_widget(Label(text=str(quantita)))
-                    table.add_widget(Label(text=str(punto)))
-            else:
-                table.add_widget(Label(text="Nessuna iniezione trovata."))
-            contenitore.add_widget(table)
-        elif self.manager.tipo_dettaglio == "pazienti_medico":
-            medico_id = self.manager.medico_selezionato
-            conn = sqlite3.connect("users.db")
-            cursor = conn.cursor()
-            cursor.execute(
-                """
-                SELECT u.id, u.nome, u.cognome, COUNT(i.id) as totale_iniezioni
-                FROM pazienti p
-                JOIN users u ON p.id = u.id
-                LEFT JOIN iniezioni i ON i.paziente_id = u.id
-                WHERE p.medico_id = ?
-                GROUP BY u.id
-                """,
-                (medico_id,)
-            )
-            records = cursor.fetchall()
-            conn.close()
-            table = GridLayout(cols=1, size_hint_y=None)
-            table.bind(minimum_height=table.setter('height'))
-            if records:
-                for paziente_id, nome, cognome, totale_iniezioni in records:
-                    btn = Button(
-                        text=f"{nome} {cognome} - {totale_iniezioni} iniezioni",
-                        size_hint_y=None,
-                        height=40
-                    )
-                    btn.bind(on_release=lambda instance, pid=paziente_id: self.mostra_iniezioni_dettaglio(pid))
-                    table.add_widget(btn)
-            else:
-                table.add_widget(Label(text="Nessun paziente trovato."))
-            contenitore.add_widget(table)
+        if tipo_dettaglio == "iniezioni":
+            self.ids.header_label.text = "Storico Iniezioni"
+            self.carica_iniezioni()
+        elif tipo_dettaglio == "pazienti_medico":
+            self.ids.header_label.text = "Pazienti del Medico"
+            self.carica_pazienti_medico()
+        elif tipo_dettaglio == "pazienti_superutente":
+            self.ids.header_label.text = "Elenco Pazienti"
+            self.carica_pazienti_superutente()
+        else:
+            self.ids.header_label.text = "Dettagli"
+            print("Errore: tipo_dettaglio non valido")
 
-        self.gestione_pulsanti()
+    def carica_iniezioni(self):
+        """Carica le iniezioni per il paziente selezionato."""
+        paziente_id = self.manager.paziente_selezionato
+        if not paziente_id:
+            self.manager.current = "pagina_home"
+            return
 
-    def gestione_pulsanti(self):
-        """Mostra o nasconde i pulsanti in base al ruolo dell'utente."""
-        utente = self.manager.current_user
+        conn = sqlite3.connect("users.db")
+        cursor = conn.cursor()
+        cursor.execute("SELECT data, ora, quantita, punto FROM iniezioni WHERE paziente_id = ? ORDER BY data DESC", (paziente_id,))
+        records = cursor.fetchall()
+        conn.close()
 
-        # Controlla se i pulsanti esistono prima di accedervi
-      # Verifica che il contenitore dei pulsanti esista
-        btn_nuova_iniezione = self.ids.get("btn_nuova_iniezione")
-        btn_cambia_password = self.ids.get("btn_cambia_password")
-
-        # Rimozione sicura dal container dei pulsanti:
-        if btn_nuova_iniezione is not None:
+        formatted_records = []
+        
+        for data, ora, quantita, punto in records:
             try:
-                if btn_nuova_iniezione in list(self.ids.btn_container.children):
-                    self.ids.btn_container.remove_widget(btn_nuova_iniezione)
-            except ReferenceError:
-                pass
+                # Prova a interpretare la data nei formati comuni
+                if "-" in data:
+                    data_format = "%Y-%m-%d"  # Formato SQL classico
+                elif "/" in data:
+                    data_format = "%d/%m/%Y"  # Formato italiano
+                
+                parsed_date = datetime.strptime(data, data_format)
+                formatted_data = parsed_date.strftime("%d/%m/%Y")  # Converti sempre in formato leggibile
 
-        if btn_cambia_password is not None:
-            try:
-                if btn_cambia_password in list(self.ids.btn_container.children):
-                    self.ids.btn_container.remove_widget(btn_cambia_password)
-            except ReferenceError:
-                pass
+            except ValueError:
+                formatted_data = data  # Se non riesce a convertire, usa la data originale
 
-        # Aggiungi i pulsanti in base al ruolo:
-        if utente["ruolo"] == "paziente":
-            if btn_nuova_iniezione is not None and btn_nuova_iniezione not in self.ids.btn_container.children:
-                self.ids.btn_container.add_widget(btn_nuova_iniezione)
-        elif utente["ruolo"] == "superutente":
-            if btn_cambia_password is not None and btn_cambia_password not in self.ids.btn_container.children:
-                self.ids.btn_container.add_widget(btn_cambia_password)
-            
-    def mostra_iniezioni_dettaglio(self, paziente_id):
+            formatted_records.append((formatted_data, ora, f"{quantita} U/ml", punto))
+
+        self.aggiorna_lista_iniezioni(formatted_records)
+
+    def carica_pazienti_medico(self):
+        """Carica i pazienti associati al medico e rende i bottoni cliccabili."""
+        medico_id = self.manager.medico_selezionato
+        conn = sqlite3.connect("users.db")
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT u.id, u.nome, u.cognome FROM pazienti p JOIN users u ON p.id = u.id WHERE p.medico_id = ?",
+            (medico_id,)
+        )
+        records = cursor.fetchall()
+        conn.close()
+
+        self.aggiorna_lista_pazienti(records, "pazienti_medico")
+
+    def crea_callback_mostra_dettagli(self, paziente_id, tipo):
+        """Ritorna una funzione che chiama mostra_dettagli_paziente con l'ID corretto."""
+        return lambda instance: self.mostra_dettagli_paziente(paziente_id, tipo)
+
+    def carica_pazienti_superutente(self):
+        """Carica tutti i pazienti per il superutente."""
+        conn = sqlite3.connect("users.db")
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT u.id, u.nome, u.cognome, m.nome, m.cognome FROM pazienti p JOIN users u ON p.id = u.id JOIN users m ON p.medico_id = m.id"
+        )
+        records = cursor.fetchall()
+        conn.close()
+
+        self.aggiorna_lista_pazienti(records, "pazienti_superutente")
+
+    def aggiorna_lista_iniezioni(self, records):
+        """Mostra l'elenco delle iniezioni."""
+        container = self.ids.detail_container
+        container.clear_widgets()
+
+        if records:
+            for data, ora, quantita, punto in records:
+                container.add_widget(Label(text=str(data), size_hint_y=None, height="40dp"))
+                container.add_widget(Label(text=str(ora), size_hint_y=None, height="40dp"))
+                container.add_widget(Label(text=str(quantita), size_hint_y=None, height="40dp"))
+                container.add_widget(Label(text=str(punto), size_hint_y=None, height="40dp"))
+        else:
+            container.add_widget(Label(text="Nessuna iniezione trovata.", size_hint_y=None, height="40dp"))
+
+    def mostra_dettagli_paziente(self, paziente_id, tipo):
+        """Passa alla schermata dettagliata delle iniezioni del paziente selezionato."""
         self.manager.paziente_selezionato = paziente_id
         self.manager.tipo_dettaglio = "iniezioni"
-        self.manager.current = "dettaglio"
+        self.manager.current = "schermata_iniezioni_paziente"
 
     def on_search(self, text):
-        # Logica per cercare tra i dati
-        self.search_text = text.lower()  # Per filtrare o evidenziare i risultati
-        print(f"Searching for: {self.search_text}")
+        """Filtra in tempo reale le iniezioni mostrate."""
+        search_text = text.lower()
+        paziente_id = self.manager.paziente_selezionato
+        
+        if not paziente_id:
+            return
+
+        conn = sqlite3.connect("users.db")
+        cursor = conn.cursor()
+        cursor.execute("SELECT data, ora, quantita, punto FROM iniezioni WHERE paziente_id = ? ORDER BY data DESC", (paziente_id,))
+        records = cursor.fetchall()
+        conn.close()
+
+        # Converti la data e applica il filtro
+        formatted_records = [(datetime.strptime(data, "%Y-%m-%d").strftime("%d/%m/%Y"), ora, f"{quantita} U/ml", punto) for data, ora, quantita, punto in records]
+        
+        filtered_records = [record for record in formatted_records if search_text in str(record).lower()]
+        self.aggiorna_lista_iniezioni(filtered_records)
+
+    def clear_search(self):
+        """Cancella il testo della ricerca e ripristina la lista completa."""
+        self.ids.search_input.text = ""
+        self.carica_iniezioni()
+
+    def torna_home(self):
+        """Torna alla pagina home."""
+        self.manager.current = "pagina_home"
 
     def logout(self):
-        """Esegue il logout e torna alla schermata di login."""
-        print("Logout in esecuzione")
-        self.manager.current_user = {"nome": "", "ruolo": ""}  # Invece di None, usa un dizionario vuoto
+        """Gestisce il logout e resetta la sessione, poi chiude il popup."""
+        print("Logout in esecuzione...")
+
+        # Resetta l'utente
+        self.manager.current_user = {"nome": "", "ruolo": ""}
+
+        # Torna alla schermata di login
         self.manager.current = "login"
+
+        # Pulisce i campi di input della login (se esistono)
+        if "input_email" in self.ids:
+            self.ids.input_email.text = ""
+        if "input_password" in self.ids:
+            self.ids.input_password.text = ""
+
+        print("Transizione a login completata!")
+
+        # Chiudi il popup dopo il logout
         if self.popup:
             self.popup.dismiss()
-        print("Transizione a login completata")
 
     def open_menu(self, widget):
         """Apre un menu popup sotto il widget cliccato."""
         if self.popup:
             self.popup.dismiss()
+        
         utente = self.manager.current_user
         nome = utente["nome"] if utente else "Sconosciuto"
 
@@ -676,8 +726,8 @@ class NuovaIniezioneScreen(Screen):
     def connetti_penna(self, instance):
         """Simula la connessione della penna e riempie automaticamente i dati"""
         self.popup.dismiss()
-        self.data = datetime.datetime.now().strftime("%Y-%m-%d")
-        self.ora = datetime.datetime.now().strftime("%H:%M:%S")
+        self.data = datetime.now().strftime("%d/%m/%Y")
+        self.ora = datetime.now().strftime("%H:%M:%S")
         self.punto = random.choice(["Braccio Destro", "Braccio Sinistro", "Coscia Destra", "Coscia Sinistra"])
 
         # Dopo 5 secondi mostra il popup per salvare i dati
@@ -775,14 +825,29 @@ class NuovaIniezioneScreen(Screen):
 
     def mostra_avviso_cambio_punto(self):
         """Mostra un avviso per suggerire il cambio del punto di iniezione"""
-        content = BoxLayout(orientation='vertical', spacing=10, padding=10)
-        content.add_widget(Label(text="Attenzione! Cambiare punto di applicazione!", font_size="24sp"))
+        content = BoxLayout(orientation='vertical', spacing=20, padding=20)
 
-        btn_ok = Button(text="OK", background_color=(1, 0, 0, 1))
-        content.add_widget(btn_ok)
+        # Aggiungi la scritta "Attenzione! Cambiare punto di applicazione!" nel popup rosso
+        content.add_widget(Label(
+            text="Attenzione! Cambiare punto di applicazione!",
+            font_size="20sp",
+            color=(1, 1, 1, 1),  # Testo bianco
+            size_hint_y=None,
+            height="40dp",
+            halign="center",  # Centra la scritta orizzontalmente
+            valign="middle",
+        ))
 
-        self.popup = Popup(title="Avviso", content=content, size_hint=(None, None), size=(500,400))
-        btn_ok.bind(on_release=self.popup.dismiss)
+        # Creazione del popup
+        self.popup = Popup(
+            content=content, 
+            size_hint=(None, None), 
+            size=(500, 300),  # Una dimensione più piccola per il popup
+            background_color=(1, 0, 0, 1),  # Colore rosso di sfondo del popup
+            auto_dismiss=True  # Rimuove automaticamente il popup quando clicchi fuori
+        )
+
+        # Mostra il popup
         self.popup.open()
 
     def logout(self):
@@ -840,10 +905,12 @@ class NuovaIniezioneScreen(Screen):
 # Gestore delle schermate
 class MyScreenManager(ScreenManager):
     current_user = ObjectProperty({"nome": "", "ruolo": ""})  # Valore predefinito
+    tipo_dettaglio = StringProperty("")
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.current_user = {"nome": "", "ruolo": ""}  # Assicura che esista sempre
+        self.tipo_dettaglio = ""
     
     selected_patient = ObjectProperty(None)
     selected_doctor = ObjectProperty(None)
@@ -852,13 +919,14 @@ class MyScreenManager(ScreenManager):
 # Applicazione principale
 class MyApp(App):
     def build(self):
+        self.title = "Dragotta di-Pen"
         sm = MyScreenManager()
         sm.add_widget(LoginScreen(name="login"))
         sm.add_widget(RegistrazioneScreen(name="registrazione"))
         sm.add_widget(PaginaHome(name="pagina_home")) # type: ignore
-        sm.add_widget(SchermataDettaglio(name="dettaglio"))
         sm.add_widget(CambiaPasswordScreen(name="cambia_password"))
         sm.add_widget(NuovaIniezioneScreen(name="nuova_iniezione"))
+        sm.add_widget(SchermataIniezioniPaziente(name="schermata_iniezioni_paziente"))
 
         return sm
 

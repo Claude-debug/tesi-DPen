@@ -1,0 +1,151 @@
+<SchermataIniezioniPaziente>:
+    name: "schermata_iniezioni_paziente"
+    BoxLayout:
+        orientation: "vertical"
+        padding: 10
+        spacing: 10
+        canvas.before:
+            Color:
+                rgba: 0.05, 0.05, 0.2, 1  # Blu notte elegante
+            Rectangle:
+                size: self.size
+                pos: self.pos
+
+        # HEADER
+        BoxLayout:
+            size_hint_y: None
+            height: "50dp"
+            canvas.before:
+                Color:
+                    rgba: 0.05, 0.05, 0.2, 1  # Blu notte elegante
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            Label:
+                id: header_label
+                text: "Dettagli"
+                font_size: "20sp"
+                color: 1, 1, 1, 1
+                bold: True
+                halign: "center"
+                valign: "middle"
+                text_size: self.size
+            
+            Button:
+                id: menu_btn
+                text: "Menu"
+                size_hint_x: 0.2
+                background_normal: ""
+                background_color: 0, 0, 0, 0
+                color: 1, 1, 1, 1
+                on_release: root.open_menu(self)
+                canvas.before:
+                    Color:
+                        rgba: 1, 0.65, 0, 1
+                    RoundedRectangle:
+                        pos: self.pos
+                        size: self.size
+                        radius: [20]
+
+        # BARRA DI RICERCA
+        BoxLayout:
+            size_hint_y: None
+            height: "40dp"
+            spacing: "5dp"
+
+            TextInput:
+                id: search_input
+                size_hint_x: 0.7
+                hint_text: "Cerca per data o punto..."
+                multiline: False
+                background_color: 1, 1, 1, 1
+                foreground_color: 0, 0, 0, 1
+                on_text: root.on_search(self.text)
+                padding: [10, 10, 10, 10]
+
+            Button:
+                text: "Cancella"
+                size_hint_x: 0.1
+                background_normal: ''
+                background_color: 0, 0, 0, 0 
+                color:  0.1, 0.1, 0.3, 1
+                on_release: root.clear_search()
+                canvas.before:
+                    Color:
+                        rgba: 0.4, 0.8, 1, 1  # Azzurro Sanitario
+                    RoundedRectangle:
+                        size: self.size
+                        pos: self.pos
+                        radius: [20]
+
+        # INTESTAZIONE COLONNE
+        GridLayout:
+            cols: 4
+            size_hint_y: None
+            height: "40dp"
+            canvas.before:
+                Color:
+                    rgba: 1, 1, 1, 0.2  # Linee di separazione
+                Line:
+                    points: self.x, self.top, self.right, self.top
+                    width: 1
+            Label:
+                text: "Data"
+                bold: True
+                color: 1, 1, 1, 1
+                font_size: "16sp"
+            Label:
+                text: "Ora"
+                bold: True
+                color: 1, 1, 1, 1
+                font_size: "16sp"
+            Label:
+                text: "Quantità"
+                bold: True
+                color: 1, 1, 1, 1
+                font_size: "16sp"
+            Label:
+                text: "Punto"
+                bold: True
+                color: 1, 1, 1, 1
+                font_size: "16sp"
+
+        # LISTA INIEZIONI
+        ScrollView:
+            GridLayout:
+                id: detail_container
+                cols: 4
+                size_hint_y: None
+                height: self.minimum_height
+                row_default_height: "40dp"
+                row_force_default: True
+                spacing: "5dp"
+                padding: "10dp"
+                canvas.before:
+                    Color:
+                        rgba: 0.2, 0.2, 0.4, 1  # Blu scuro per sfondo tabella
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+
+        # PULSANTE TORNA ALLA HOME
+        BoxLayout:
+            size_hint_y: None
+            height: "40dp"
+
+            Button:
+                text: "Torna alla Home"
+                font_size: "18sp"
+                background_normal: ''
+                background_color: 0, 0, 0, 0  # Blu chiaro per più visibilità
+                color: 1, 1, 1, 1
+                size_hint_y: None
+                height: "36dp"
+                on_release: root.torna_home()
+                canvas.before:
+                    Color:
+                        rgba: 1, 0.65, 0, 1
+                    RoundedRectangle:
+                        pos: self.pos
+                        size: self.size
+                        radius: [20]
